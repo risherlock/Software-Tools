@@ -15,14 +15,13 @@ unsigned long util_floor(const double x);
 void display_month(const unsigned long year, const char m);
 char get_days_in_month(const unsigned long year, const char m);
 void display_calender(const unsigned long year, const char month, const char max_days, const char start_day);
-char date_to_day(const unsigned long year, const char month, const char day);
+char date_to_day(unsigned long year, const char month, const char day);
 
 int main()
 {
   for (char i = 0; i < 12; i++)
   {
     display_month(2023, i);
-    printf("\r\n");
   }
   return 0;
 }
@@ -30,6 +29,7 @@ int main()
 void display_calender(const unsigned long year, const char month, const char max_days, const char start_day)
 {
   char space = round(0.5 * (15 - sizeof(months_string[month])));
+  printf("\r\n");
   for (char i = 0; i < space; i++)
   {
     printf(" ");
@@ -69,26 +69,26 @@ void display_calender(const unsigned long year, const char month, const char max
   }
 }
 
-char date_to_day(const unsigned long year, const char month, const char day)
+char date_to_day(unsigned long year, const char month, const char day)
 {
-  const char q = day;
-  const unsigned long J = floor(year / 100);
-  const unsigned long K = year % 100;
   char m;
   if (month > 1)
   {
-    m = m + 1;
+    m = month + 1;
   }
   else
   {
-    m = m + 13;
+    m = month + 13;
+    year--;
   }
 
-  return (q + K + -2 * J +
-          util_floor(13.0f * (m + 1) / 5.0f) +
-          util_floor(K / 4.0f) +
-          util_floor(J / 4.0f)) %
-         7;
+  const char q = day + 1;
+  const unsigned long J = floor(year / 100);
+  const unsigned long K = year % 100;
+
+  /* Zeller's algorithm */
+  char h = (q + 13 * (m + 1) / 5 + K + K / 4 + J / 4 + 5 * J + 6) % 7;
+  return h;
 }
 
 void display_month(const unsigned long year, const char month)
@@ -113,7 +113,7 @@ char get_days_in_month(const unsigned long year, const char m)
     case 9:
     case 11:
     {
-      output = 30;
+      output = 31;
       break;
     }
 
